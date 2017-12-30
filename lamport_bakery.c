@@ -31,7 +31,7 @@ void lock(int thread_id){
         || (numbers[i] == numbers[thread_id] && i < thread_id))){
         //printf("%d:0 %d:1 %d:2 %d:3  %d ", numbers[0], numbers[1], numbers[2], numbers[3], i);
         }
-        printf("done");
+        puts("done");
     }
 }
 
@@ -41,7 +41,8 @@ void unlock(int thread_id){
 
 void *consumer(void *a){
     int id = *((int *) a);
-
+    printf("%d", id);
+    while(true){
         lock(id);
         if(critical_section > 0){
             critical_section--;
@@ -50,6 +51,7 @@ void *consumer(void *a){
             pthread_exit(0);
         }
         unlock(id);
+    }
 }
 
 int main(int argc, char* argv[]){
@@ -60,9 +62,11 @@ int main(int argc, char* argv[]){
 
     pthread_t my_threads[n_threads];
 
+    int values[n_threads];
+
     for(int i = 0; i < n_threads; i++){
-        int id = i;
-        pthread_create(&my_threads[i], NULL, consumer, (void *)&id);
+        values[i] = i;
+        pthread_create(&my_threads[i], NULL, consumer, (void *)&values[i]);
     }
 
     for(int i = 0; i < n_threads; i++){

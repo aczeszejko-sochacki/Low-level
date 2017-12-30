@@ -5,4 +5,4 @@ main.o: lamport_bakery.c
 	gcc -c lamport_bakery.c
 
 run: 
-	./lamport_bakery 1 2
+	./lamport_bakery 3 4
