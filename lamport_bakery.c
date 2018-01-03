@@ -24,14 +24,9 @@ void lock(int thread_id){
     enter[thread_id] = false;
 
     for(int i = 0; i < n_threads; i++){
-        while(enter[i]){
-            //printf("one");
-        }
+        while(enter[i]){}
         while(numbers[i] != 0 && (numbers[i] < numbers[thread_id]
-        || (numbers[i] == numbers[thread_id] && i < thread_id))){
-        printf("%d:0 %d:1 %d:2 %d:3  %d ", numbers[0], numbers[1], numbers[2], numbers[3], i);
-        }
-        //puts("done");
+        || (numbers[i] == numbers[thread_id] && i < thread_id))){}
     }
 }
 
@@ -39,7 +34,7 @@ void unlock(int thread_id){
     numbers[thread_id] = 0;
 }
 
-void *consumer(void *a){
+void *bakery_consumer(void *a){
     int id = *((int *) a);
     while(true){
         lock(id);
@@ -72,8 +67,6 @@ int main(int argc, char* argv[]){
     for(int i = 0; i < n_threads; i++){
         pthread_join(my_threads[i], NULL);
     }
-
-    //for(int j = 0; j < n_threads; j++) printf("%d ", enter[j]);
 
     free(enter);
     free(numbers);
