@@ -29,9 +29,9 @@ void lock(int thread_id){
         }
         while(numbers[i] != 0 && (numbers[i] < numbers[thread_id]
         || (numbers[i] == numbers[thread_id] && i < thread_id))){
-        //printf("%d:0 %d:1 %d:2 %d:3  %d ", numbers[0], numbers[1], numbers[2], numbers[3], i);
+        printf("%d:0 %d:1 %d:2 %d:3  %d ", numbers[0], numbers[1], numbers[2], numbers[3], i);
         }
-        puts("done");
+        //puts("done");
     }
 }
 
@@ -41,16 +41,16 @@ void unlock(int thread_id){
 
 void *consumer(void *a){
     int id = *((int *) a);
-    printf("%d", id);
     while(true){
         lock(id);
         if(critical_section > 0){
+            unlock(id);
             critical_section--;
         }
         else{
+            unlock(id);
             pthread_exit(0);
         }
-        unlock(id);
     }
 }
 
