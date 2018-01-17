@@ -93,7 +93,7 @@ void test(int local_critical_section, int n_threads){
     free(enter);
     free(numbers);
 
-    printf("Value: %d  Time: %lu\n",
+    printf("Bakery: Value: %d  Time: %lu\n",
      critical_section, clock() - start);
     critical_section = local_critical_section;
 
@@ -108,14 +108,14 @@ void test(int local_critical_section, int n_threads){
         pthread_join(mutex_threads[i], NULL);
     }
 
-    printf("Value: %d  Time: %lu\n",
+    printf("Mutex: Value: %d  Time: %lu\n\n",
      critical_section, clock() - start2);
 }
 
 int main(int argc, char* argv[]){
     int n_tests = atoi(argv[1]);
 
-    for(int i = 0; i < n_tests; i++){
+    for(int i = 0; i < 2*n_tests; i+=2){
         test(atoi(argv[i+2]), atoi(argv[i+3]));
     }
 }
