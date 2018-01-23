@@ -72,44 +72,62 @@ void test(int local_critical_section, int n_threads){
     printf("critical section: %d  n threads: %d\n",
     local_critical_section, n_threads);
 
-    pthread_t bakery_threads[n_threads],
-    mutex_threads[n_threads];
-    enter = calloc(n_threads, n_threads*sizeof(bool));
-    numbers = calloc(n_threads, n_threads*sizeof(int));
-    critical_section = local_critical_section;
-    int values[n_threads];
+    double bakery_mean_value = 0.0,
+    bakery_mean_time = 0.0,
+    mutex_mean_value = 0.0,
+    mutex_mean_time = 0.0;
 
-    clock_t start = clock();
-    for(int i = 0; i < n_threads; i++){
-        values[i] = i;
-        pthread_create(&bakery_threads[i], NULL,
-         bakery_consumer, (void *)&values[i]);
+    for(int i = 0; i < 10; i++){
+        pthread_t bakery_threads[n_threads],
+        mutex_threads[n_threads];
+        enter = calloc(n_threads, n_threads*sizeof(bool));
+        numbers = calloc(n_threads, n_threads*sizeof(int));
+        critical_section = local_critical_section;
+        int values[n_threads];
+
+        clock_t start = clock();
+        for(int i = 0; i < n_threads; i++){
+            values[i] = i;
+            pthread_create(&bakery_threads[i], NULL,
+             bakery_consumer, (void *)&values[i]);
+        }
+
+        for(int i = 0; i < n_threads; i++){
+            pthread_join(bakery_threads[i], NULL);
+        }
+
+        free(enter);
+        free(numbers);
+
+
+        bakery_mean_value += critical_section;
+        bakery_mean_time += clock() - start;
+
+        critical_section = local_critical_section;
+
+        clock_t start2 = clock();
+        for(int i = 0; i < n_threads; i++){
+            values[i] = i;
+            pthread_create(&mutex_threads[i], NULL,
+             mutex_consumer, NULL);
+        }
+
+        for(int i = 0; i < n_threads; i++){
+            pthread_join(mutex_threads[i], NULL);
+        }
+
+        mutex_mean_value += critical_section;
+        mutex_mean_time += clock() - start2;
     }
+    bakery_mean_value /= 10;
+    bakery_mean_time /= 10;
+    mutex_mean_value /= 10;
+    mutex_mean_time /= 10;
 
-    for(int i = 0; i < n_threads; i++){
-        pthread_join(bakery_threads[i], NULL);
-    }
-
-    free(enter);
-    free(numbers);
-
-    printf("Bakery: Value: %d  Time: %lu\n",
-     critical_section, clock() - start);
-    critical_section = local_critical_section;
-
-    clock_t start2 = clock();
-    for(int i = 0; i < n_threads; i++){
-        values[i] = i;
-        pthread_create(&mutex_threads[i], NULL,
-         mutex_consumer, NULL);
-    }
-
-    for(int i = 0; i < n_threads; i++){
-        pthread_join(mutex_threads[i], NULL);
-    }
-
-    printf("Mutex: Value: %d  Time: %lu\n\n",
-     critical_section, clock() - start2);
+    printf("Bakery:  value: %f time: %f\n",
+     bakery_mean_value, bakery_mean_time);
+    printf("Mutex:  value: %f time: %f\n",
+     mutex_mean_value, mutex_mean_time);
 }
 
 int main(int argc, char* argv[]){
